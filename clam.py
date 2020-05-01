@@ -93,6 +93,7 @@ if __name__ == '__main__':
 
     # our figure and axes
     fig = pyplot.figure(figsize=(7, 3), tight_layout=True)
+    fig.canvas.set_window_title(parser.prog)
     ax = fig.add_subplot(1, 1, 1)
     init_axes(ax)
 
