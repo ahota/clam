@@ -48,15 +48,19 @@ def get_cpu():
     if local:
         return psutil.cpu_percent(percpu=True)
     else:
-        pass
+        command = 'top -bn2 | grep "Cpu(s)" | tail -n 1 | awk \'{ print $2; }\''
+        # launch the command asynchronously (it takes a while)
+        results = [conn.run(command, asynchronous=True) for conn in connections]
+        # join all commands to get the result
+        results = [float(r.join().stdout.strip()) for r in results]
+        return results
 
 
 def update(i, x, y):
-    x.append(datetime.datetime.now())
-
     new_ys = get_cpu()
     for i in range(len(y)):
         y[i].append(new_ys[i])
+    x.append(datetime.datetime.now())
 
     x = x[-30:]
 
