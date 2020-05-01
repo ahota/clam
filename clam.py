@@ -7,6 +7,8 @@ import psutil
 import random
 import time
 
+import clam_colors
+
 # remove the toolbar with zoom, pan, view buttons
 matplotlib.rcParams['toolbar'] = 'None'
 
@@ -16,10 +18,12 @@ xloc = ticker.LinearLocator(numticks=5)
 
 
 def initialize():
-    global local, nodes, connections
+    global local, nodes, connections, colors
     local = False
     nodes = []
     connections = []
+    colors = []
+    labels = []
 
 
 def init_axes(ax):
@@ -65,16 +69,16 @@ def update(i, x, y):
     x = x[-30:]
 
     format_axes(ax)
-    for yv in y:
-        yv = yv[-30:]
-        ax.plot_date(x, yv, fmt='-')
+    for yi in range(len(y)):
+        y[yi] = y[yi][-30:]
+        line = ax.plot_date(x, y[yi], fmt='-', label=labels[yi] if local else nodes[yi])
+    fig.legend(fontsize='xx-small', loc='center right')
 
 
 initialize()
 
 if __name__ == '__main__':
-    global local
-    global nodes
+    global local, nodes, colors, labels
 
     parser = ArgumentParser(prog='clam',
                             description='a basic Cluster/Local Activity Monitor')
@@ -88,7 +92,7 @@ if __name__ == '__main__':
     local = args.local
 
     # our figure and axes
-    fig = pyplot.figure(figsize=(6, 3), tight_layout=True)
+    fig = pyplot.figure(figsize=(7, 3), tight_layout=True)
     ax = fig.add_subplot(1, 1, 1)
     init_axes(ax)
 
@@ -98,11 +102,14 @@ if __name__ == '__main__':
     if local:
         n_cpu = psutil.cpu_count()
         cpu = [[0.0] for _ in range(n_cpu)]
+        colors = clam_colors.build_colors(n_cpu)
+        labels = [f'cpu{c:02d}' for c in range(n_cpu)]
     else:
         n_node = len(args.nodes)
         cpu = [[0.0] for _ in range(n_node)]
         nodes = args.nodes
         connections = [Connection(hostname) for hostname in nodes]
+        colors = clam_colors.build_colors(n_node)
 
     anim = animation.FuncAnimation(fig, update, fargs=(t, cpu), interval=1000)
     pyplot.show()
