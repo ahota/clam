@@ -24,6 +24,14 @@ pip3 install -r requirements.txt
 
 ## Run
 
+**Cluster**
+
+```bash
+python3 clam.py --nodes host1 [host2 host3 ... ]
+```
+
+This will show overall CPU activity for each node provided.
+
 **Local**
 
 ```bash
